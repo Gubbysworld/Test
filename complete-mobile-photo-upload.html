@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Photo Upload</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+        
+        .camera-btn {
+            background-color: #2ecc71;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-block;
+            width: 100%;
+            margin-top: 10px;
+            -webkit-appearance: none; /* For iOS */
+        }
+        
+        .btn:hover, .btn:active {
+            background-color: #2980b9;
+        }
+        
+        .btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        #preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        #videoElement {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            background-color: #000;
+        }
+        
+        .info {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        
+        input[type="text"], 
+        input[type="tel"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            -webkit-appearance: none; /* For iOS */
+            box-sizing: border-box;
+        }
+        
+        /* Button styles for capture and cancel */
+        .capture-btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .capture-btn {
+            flex: 1;
+            margin-right: 5px;
+        }
+        
+        .cancel-btn {
+            flex: 1;
+            margin-left: 5px;
+            background-color: #e74c3c;
+        }
+        
+        .cancel-btn:hover, .cancel-btn:active {
+            background-color: #c0392b;
+        }
+        
+        /* Icon styles */
+        .icon {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Share Your Photo</h1>
+        
+        <div class="form-group">
+            <label for="nameInput">Your Name <span class="required">*</span></label>
+            <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="phoneInput">Your Phone Number <span class="required">*</span></label>
+            <input type="tel" id="phoneInput" placeholder="Enter your phone number" autocomplete="tel" required>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <svg class="icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3>Tap to browse your photos</h3>
+            <p>Select an image from your gallery</p>
+            <input type="file" id="fileInput" accept="image/*" capture>
+            <button class="btn camera-btn" id="cameraBtn">
+                <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                </svg>
+                Take a Photo
+            </button>
+        </div>
+        
+        <div id="preview"></div>
+        
+        <div style="text-align: center; margin-top: 10px;">
+            <button class="btn" id="uploadBtn" disabled>Upload Photo</button>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h3>Thank You!</h3>
+            <p>Your photo has been successfully uploaded.</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3>Upload Failed</h3>
+            <p>There was a problem uploading your photo. Please try again.</p>
+        </div>
+        
+        <div class="info">
+            <h3>About This Photo Collection</h3>
+            <p>Your photo will be included in a special photo album. Thank you for your contribution!</p>
+            <p><strong>Note:</strong> Photos will only be viewable by the album creator and will be used solely for creating the photo album.</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const preview = document.getElementById('preview');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const nameInput = document.getElementById('nameInput');
+        const phoneInput = document.getElementById('phoneInput');
+        
+        // Set focus to name input on page load for better mobile UX
+        window.addEventListener('load', function() {
+            // Short timeout to ensure the page is fully loaded
+            setTimeout(() => nameInput.focus(), 500);
+        });
+        
+        // Handle file selection via click
+        uploadArea.addEventListener('click', (e) => {
+            // Don't trigger if they clicked the camera button
+            if (e.target !== cameraBtn && !cameraBtn.contains(e.target)) {
+                fileInput.click();
+            }
+        });
+        
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+        
+        // Camera button click event
+        cameraBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent uploadArea click event
+            openCamera();
+        });
+        
+        function handleFiles(files) {
+            if (files.length) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    previewFile(file);
+                    uploadBtn.disabled = false;
+                } else {
+                    alert('Please select an image file');
+                    uploadBtn.disabled = true;
+                }
+            }
+        }
+        
+        function previewFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <h3>Selected Photo:</h3>
+                    <img src="${e.target.result}" alt="Preview">
+                    <p><strong>File:</strong> ${file.name}</p>
+                `;
+            }
+            reader.readAsDataURL(file);
+        }
+        
+        // Handle the upload button
+        uploadBtn.addEventListener('click', uploadFile);
+        
+        function uploadFile() {
+            if (fileInput.files.length === 0) {
+                alert('Please select a photo first');
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                nameInput.focus();
+                return;
+            }
+            
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                alert('Please enter your phone number');
+                phoneInput.focus();
+                return;
+            }
+            
+            // Prepare the form data for submission
+            const formData = new FormData();
+            formData.append('photo', fileInput.files[0]);
+            formData.append('name', nameInput.value);
+            formData.append('phone', phoneInput.value);
+            
+            // Update UI during upload
+            uploadBtn.textContent = 'Uploading...';
+            uploadBtn.disabled = true;
+            
+            // Send the file to the server
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Upload failed with status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        resetForm();
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                errorMessage.querySelector('p').textContent = 
+                    'There was a problem uploading your photo: ' + error.message;
+            })
+            .finally(() => {
+                uploadBtn.textContent = 'Upload Photo';
+                uploadBtn.disabled = false;
+            });
+        }
+        
+        function resetForm() {
+            fileInput.value = '';
+            nameInput.value = '';
+            phoneInput.value = '';
+            preview.innerHTML = '';
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            uploadBtn.disabled = true;
+        }
+        
+        // Camera functionality
+        function openCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Your browser does not support camera access. Please use a different browser or device.');
+                return;
+            }
+
+            // Create video element for camera preview
+            const videoElement = document.createElement('video');
+            videoElement.setAttribute('autoplay', '');
+            videoElement.setAttribute('playsinline', ''); // Required for iOS
+            videoElement.id = 'videoElement';
+            
+            // Clear preview and add video element
+            preview.innerHTML = '';
+            preview.appendChild(videoElement);
+            
+            // Add buttons container
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'capture-btn-container';
+            
+            // Create capture button
+            const captureBtn = document.createElement('button');
+            captureBtn.className = 'btn capture-btn';
+            captureBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+                Take Photo
+            `;
+            
+            // Create cancel button
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn cancel-btn';
+            cancelBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancel
+            `;
+            
+            buttonsDiv.appendChild(captureBtn);
+            buttonsDiv.appendChild(cancelBtn);
+            preview.appendChild(buttonsDiv);
+            
+            // Access the camera with specific constraints for mobile
+            const constraints = {
+                video: {
+                    facingMode: 'environment', // Use the back camera on mobile
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    videoElement.srcObject = stream;
+                    
+                    // Take photo when capture button is clicked
+                    captureBtn.addEventListener('click', () => {
+                        // Create canvas to capture frame
+                        const canvas = document.createElement('canvas');
+                        canvas.width = videoElement.videoWidth;
+                        canvas.height = videoElement.videoHeight;
+                        canvas.getContext('2d').drawImage(videoElement, 0, 0);
+                        
+                        // Convert to file
+                        canvas.toBlob((blob) => {
+                            const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
+                            
+                            // Stop camera stream
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Preview the captured photo
+                            previewFile(file);
+                            
+                            // Add file to fileInput
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            fileInput.files = dataTransfer.files;
+                            
+                            // Enable upload button
+                            uploadBtn.disabled = false;
+                        }, 'image/jpeg', 0.9); // 90% quality for better file size
+                    });
+                    
+                    // Cancel camera
+                    cancelBtn.addEventListener('click', () => {
+                        // Stop camera stream
+                        stream.getTracks().forEach(track => track.stop());
+                        preview.innerHTML = '';
+                    });
+                })
+                .catch(error => {
+                    console.error("Error accessing camera:", error);
+                    preview.innerHTML = `
+                        <div class="error-message" style="display:block">
+                            <p>Failed to access camera: ${error.message}</p>
+                            <p>Try allowing camera access in your browser settings.</p>
+                        </div>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
